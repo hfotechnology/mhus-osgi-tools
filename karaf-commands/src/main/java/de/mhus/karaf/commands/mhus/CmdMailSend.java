@@ -27,7 +27,6 @@ import org.apache.karaf.shell.api.action.lifecycle.Service;
 import de.mhus.lib.core.M;
 import de.mhus.lib.core.MFile;
 import de.mhus.lib.core.mail.GpgEncryptedMail;
-import de.mhus.lib.core.mail.GpgSignedMail;
 import de.mhus.lib.core.mail.MSendMail;
 import de.mhus.lib.core.mail.MailAttachment;
 import de.mhus.osgi.api.karaf.AbstractCmd;
@@ -98,11 +97,6 @@ public class CmdMailSend extends AbstractCmd {
             required = false)
     String keystorePassphrase;
 
-    @Option(name = "-signDN", description = "Sign the mail (test)", required = false)
-    String signDN;
-
-    @Option(name = "-origDN", description = "Sign the mail (test)", required = false)
-    String origDN;
 
     @Override
     public Object execute2() throws Exception {
@@ -120,16 +114,8 @@ public class CmdMailSend extends AbstractCmd {
             InputStreamReader isr = new InputStreamReader(System.in, Charset.forName("UTF-8"));
             message = MFile.readFile(isr);
         }
-
-        if (origDN != null) {
-            sendMail.sendMail(
-                    new GpgSignedMail()
-                            .setFrom(from)
-                            .setTo(to.split(";"))
-                            .setSubject(subject)
-                            .setContent(message)
-                            .createCertificates(signDN, origDN));
-        } else if (keystore != null) {
+        
+        if (keystore != null) {
             sendMail.sendMail(
                     new GpgEncryptedMail()
                             .setFrom(from)
